@@ -30,7 +30,7 @@ export function Header() {
       <div className="flex flex-col">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold tracking-widest text-white uppercase">
-            Myanmar {horizonLabel} Weather Forecast
+            Nepal {horizonLabel} Weather Forecast
           </span>
           {isDemo && (
             <span className="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500 text-black">

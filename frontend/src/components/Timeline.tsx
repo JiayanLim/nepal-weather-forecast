@@ -12,11 +12,11 @@ export function Timeline() {
   } = useForecastStore();
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const maxIndex = (metadata?.n_frames ?? 9) - 1;
+  const maxIndex = (metadata?.n_frames ?? 168) - 1;
 
   const tick = useCallback(() => {
     const store = useForecastStore.getState();
-    if (store.currentHour >= (store.metadata?.n_frames ?? 9) - 1) {
+    if (store.currentHour >= (store.metadata?.n_frames ?? 168) - 1) {
       useForecastStore.getState().setHour(0);
     } else {
       store.stepForward();
@@ -36,8 +36,9 @@ export function Timeline() {
   }, [isPlaying, playbackSpeed, tick]);
 
   const validTime = metadata?.times_utc?.[currentHour];
-  const stepHours = metadata?.native_timestep_hours ?? 6;
-  const leadHours = currentHour * stepHours;
+  const stepHours = metadata?.native_timestep_hours ?? 1;
+  // Nepal frames start at +1h (no t+0h frame), so lead = (index + 1) * step
+  const leadHours = (currentHour + 1) * stepHours;
 
   let dateStr = '—';
   let timeStr = '—';
@@ -45,7 +46,9 @@ export function Timeline() {
     const d = new Date(validTime);
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     dateStr = `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-    timeStr = `${d.getUTCHours().toString().padStart(2, '0')}:00 UTC`;
+    const hh = d.getUTCHours().toString().padStart(2, '0');
+    const mm = d.getUTCMinutes().toString().padStart(2, '0');
+    timeStr = `${hh}:${mm} UTC`;
   }
 
   return (
@@ -115,13 +118,13 @@ export function Timeline() {
           ))}
         </div>
 
-        {/* Hour markers — every 24h (every 4th frame at 6h step) */}
+        {/* Day markers — show every 24h */}
         <div className="flex items-center gap-1 text-[9px] text-slate-600">
-          {Array.from({ length: metadata?.n_frames ?? 29 }, (_, i) => i)
-            .filter((i) => i % Math.round(24 / stepHours) === 0)
-            .map((i, idx, arr) => (
-              <span key={i}>
-                {i * stepHours}h
+          {[0, 24, 48, 72, 96, 120, 144, 168]
+            .filter((h) => h <= (metadata?.forecast_horizon_hours ?? 168))
+            .map((h, idx, arr) => (
+              <span key={h}>
+                {h}h
                 {idx < arr.length - 1 && <span className="mx-0.5">·</span>}
               </span>
             ))}

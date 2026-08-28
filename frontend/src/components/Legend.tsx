@@ -49,16 +49,15 @@ export function Legend() {
       <div className="flex items-center justify-between">
         {isPrecip ? (
           <>
-            <span className="text-[10px] text-slate-400">Precipitation (mm/hr avg)</span>
+            <span className="text-[10px] text-slate-400">Precipitation (mm/hr)</span>
             <div className="relative group">
               <span className="text-[10px] text-slate-500 cursor-help border-b border-dashed border-slate-500">
                 ⓘ rate
               </span>
               <div className="absolute bottom-5 right-0 hidden group-hover:block bg-wx-panel border border-wx-border rounded p-2 text-[10px] text-slate-300 w-56 z-50 shadow-lg">
-                Estimated average rainfall rate for each 6-hour period.
-                Derived from GCOp tp06 output (metres/6h × 1000 / 6 → mm/hr, clamped ≥ 0).
+                1-hour precipitation rate from Aurora 1.5 (clamped ≥ 0).
                 Color scale is sqrt-transformed — spreads light rain across the palette.
-                Calibrated for January 2021 dry season (max: 1.62 mm/hr); values above 2 mm/hr saturate.
+                Calibrated for August 2026 monsoon season (max: ~2.35 mm/hr); values above 3 mm/hr saturate.
               </div>
             </div>
           </>

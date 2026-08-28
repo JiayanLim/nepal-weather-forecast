@@ -62,13 +62,14 @@ export function InfoPanel() {
                 <Row label="Display resolution" value={`${metadata.display_resolution_deg}° — interpolated`} />
               )}
               <Row label="Initialization" value={metadata.initialization_source} />
-              <Row label="Horizon" value={`${metadata.forecast_horizon_hours}h`} />
+              <Row label="Horizon" value={`${metadata.forecast_horizon_hours}h (${metadata.forecast_horizon_hours / 24} days)`} />
               <Row label="Timestep" value={`${metadata.native_timestep_hours}h`} />
               <Row label="Init time" value={formatDt(metadata.initialization_time)} />
               <Row label="Generated" value={formatDt(metadata.forecast_generated_at)} />
+              <Row label="Region" value={metadata.region} />
               {metadata.inference_config && (
                 <Row
-                  label="Generated on"
+                  label="IC source"
                   value={String(metadata.inference_config.hardware ?? metadata.inference_config.device ?? '—')}
                 />
               )}
@@ -85,8 +86,7 @@ export function InfoPanel() {
                     Temperature · {metadata.variables.temperature.display_unit}
                   </span>
                   <p className="text-slate-400 text-xs mt-0.5">
-                    Times shown as UTC and Myanmar Standard Time (MMT = UTC+6:30, no DST).
-                    R5 validation for the Jan 2021 cycle shows a mean temperature bias of −0.76°C against ERA5 (one cycle only — not a universal model characterisation).
+                    Times shown as UTC and Nepal Standard Time (NPT = UTC+5:45, no DST).
                   </p>
                   <p className="text-slate-500 text-[10px] mt-0.5 font-mono">
                     {metadata.variables.temperature.conversion}
@@ -98,8 +98,7 @@ export function InfoPanel() {
                     Precipitation · {metadata.variables.precipitation.display_unit}
                   </span>
                   <p className="text-slate-400 text-xs mt-0.5">
-                    Estimated average rainfall rate for each 6-hour forecast period.
-                    Not an instantaneous rate.
+                    1-hour precipitation rate. This is an instantaneous hourly rate, not an accumulation.
                   </p>
                   <p className="text-slate-500 text-[10px] mt-0.5 font-mono">
                     {metadata.variables.precipitation.conversion}
@@ -132,16 +131,6 @@ export function InfoPanel() {
 
             <hr className="border-wx-border" />
 
-            {metadata.data_source_attribution && (
-              <>
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Initialization Data</h3>
-                  <p className="text-xs text-slate-400">{metadata.data_source_attribution}</p>
-                </div>
-                <hr className="border-wx-border" />
-              </>
-            )}
-
             <div className="flex flex-col gap-2">
               <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Limitations</h3>
               <ul className="text-[11px] text-slate-400 list-disc list-inside space-y-1">
@@ -160,8 +149,13 @@ export function InfoPanel() {
                   particularly for rapidly evolving convective systems.
                 </li>
                 <li>
-                  Precipitation represents estimated average rainfall rate (mm/hr) for each 6-hour
-                  forecast period, not an instantaneous rate.
+                  Nepal's complex terrain (Terai plains to Himalayan peaks) creates significant sub-grid
+                  variability that a 0.25° model cannot resolve. Valley-scale and orographic effects
+                  are smoothed.
+                </li>
+                <li>
+                  IFS initial conditions use zero-filled values for 4 unavailable channels (sic, hcc, lcc, mcc).
+                  This may affect cloud-related variables.
                 </li>
                 {metadata.is_demo && (
                   <li className="text-amber-400">
@@ -179,7 +173,7 @@ export function InfoPanel() {
               <p className="text-[10px] text-slate-500">{metadata.model_attribution}</p>
               {metadata.earth2studio_version && (
                 <p className="text-[10px] text-slate-500">
-                  Framework: NVIDIA Earth2Studio ≥ {metadata.earth2studio_version}
+                  Framework: NVIDIA Earth2Studio {metadata.earth2studio_version}
                 </p>
               )}
               <p className="text-[10px] text-slate-500">Basemap: © OpenStreetMap contributors</p>

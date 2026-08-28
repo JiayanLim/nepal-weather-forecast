@@ -11,17 +11,17 @@ import {
 import { WindArrowOverlay } from './WindArrowOverlay';
 import { DISPLAY_N_LAT, DISPLAY_N_LON } from '../geo/mask';
 
-const MYANMAR_CENTER: [number, number] = [96.5, 19.0];
+const NEPAL_CENTER: [number, number] = [84.25, 28.25];
 
-/** Format a UTC ISO timestamp as Myanmar Standard Time (UTC+6:30, no DST). */
-function toMMTStr(utcIso: string): string {
+/** Format a UTC ISO timestamp as Nepal Standard Time (UTC+5:45, no DST). */
+function toNPTStr(utcIso: string): string {
   const dt = new Date(utcIso);
   if (isNaN(dt.getTime())) return '';
-  const mmtMs = dt.getTime() + 390 * 60 * 1000; // +6h30m
-  const mmt = new Date(mmtMs);
+  const nptMs = dt.getTime() + 345 * 60 * 1000; // +5h45m
+  const npt = new Date(nptMs);
   const pad = (n: number) => String(n).padStart(2, '0');
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${pad(mmt.getUTCHours())}:${pad(mmt.getUTCMinutes())} MMT · ${mmt.getUTCDate()} ${months[mmt.getUTCMonth()]} ${mmt.getUTCFullYear()}`;
+  return `${pad(npt.getUTCHours())}:${pad(npt.getUTCMinutes())} NPT · ${npt.getUTCDate()} ${months[npt.getUTCMonth()]} ${npt.getUTCFullYear()}`;
 }
 
 /** Compass bearing label for a FROM direction in degrees. */
@@ -84,25 +84,25 @@ export function WeatherMap() {
           },
         ],
       },
-      center: MYANMAR_CENTER,
-      zoom: 5.2,
-      maxBounds: [[88, 5], [108, 32]],
-      minZoom: 4,
+      center: NEPAL_CENTER,
+      zoom: 6.5,
+      maxBounds: [[76, 24], [93, 33]],
+      minZoom: 5,
       maxZoom: 10,
     });
 
     mapRef.current = map;
 
     map.on('load', () => {
-      map.addSource('myanmar-boundary', {
+      map.addSource('nepal-boundary', {
         type: 'geojson',
-        data: './geo/myanmar-boundary.geojson',
+        data: './geo/nepal-boundary.geojson',
       });
 
       map.addLayer({
-        id: 'myanmar-fill',
+        id: 'nepal-fill',
         type: 'fill',
-        source: 'myanmar-boundary',
+        source: 'nepal-boundary',
         paint: {
           'fill-color': 'rgba(255,255,255,0.03)',
           'fill-outline-color': 'rgba(255,255,255,0.0)',
@@ -110,9 +110,9 @@ export function WeatherMap() {
       });
 
       map.addLayer({
-        id: 'myanmar-outline',
+        id: 'nepal-outline',
         type: 'line',
-        source: 'myanmar-boundary',
+        source: 'nepal-boundary',
         paint: {
           'line-color': 'rgba(255, 255, 255, 0.7)',
           'line-width': 1.5,
@@ -150,7 +150,6 @@ export function WeatherMap() {
     if (!canvas || !isLoaded || !metadata) return;
 
     const { n_lat, n_lon } = metadata.grid;
-    // MODEL_STEP derived at runtime from metadata (ADR-019 / FR-N11)
     const modelStep = metadata.native_resolution_deg;
 
     const [data, lut, vmin, vmax] =
@@ -222,9 +221,9 @@ export function WeatherMap() {
       const validTime = metadata.times_utc[currentHour] ?? '';
       const dt = new Date(validTime);
       const timeStr = dt.toUTCString().replace(' GMT', ' UTC');
-      const mmtStr = validTime ? toMMTStr(validTime) : '';
-      const stepHours = metadata.native_timestep_hours ?? 6;
-      const leadH = currentHour * stepHours;
+      const nptStr = validTime ? toNPTStr(validTime) : '';
+      const stepHours = metadata.native_timestep_hours ?? 1;
+      const leadH = (currentHour + 1) * stepHours;
 
       const fmt = (v: number, dp: number, unit: string) =>
         isNaN(v) ? '—' : `${v.toFixed(dp)} ${unit}`;
@@ -233,7 +232,6 @@ export function WeatherMap() {
         ? '—'
         : `${Math.round(wdVal)}° FROM ${compassLabel(wdVal)}`;
 
-      // Determine active variable label and value for primary display
       const [activeLabel, activeValStr] =
         activeVariable === 'temperature'
           ? ['Temperature',  fmt(tempVal,   1, '°C')]
@@ -243,15 +241,15 @@ export function WeatherMap() {
 
       content = `
         <div class="wx-popup">
-          <div class="wx-popup-title">Myanmar</div>
+          <div class="wx-popup-title">Nepal</div>
           <div class="wx-popup-time">${timeStr}</div>
-          ${mmtStr ? `<div class="wx-popup-time" style="opacity:0.7">${mmtStr}</div>` : ''}
+          ${nptStr ? `<div class="wx-popup-time" style="opacity:0.7">${nptStr}</div>` : ''}
           <div class="wx-popup-row">
             <span class="wx-popup-label">${activeLabel}</span>
             <span class="wx-popup-value">${activeValStr}</span>
           </div>
           ${activeVariable === 'precipitation'
-            ? `<div class="wx-popup-note">Estimated avg. rainfall rate (6h window)</div>`
+            ? `<div class="wx-popup-note">1h precipitation rate</div>`
             : ''
           }
           <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:6px 0"/>
@@ -301,7 +299,6 @@ export function WeatherMap() {
           display: isLoaded ? 'block' : 'none',
         }}
       />
-      {/* SVG wind arrow overlay (FR-W01–FR-W07, ADR-025) — replaces R11 canvas arrows */}
       <WindArrowOverlay map={mapRef.current} />
     </div>
   );

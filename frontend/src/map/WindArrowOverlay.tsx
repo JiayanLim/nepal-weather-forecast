@@ -20,10 +20,10 @@ import type maplibregl from 'maplibre-gl';
 import { useForecastStore } from '../data/ForecastStore';
 import { getFrame } from '../data/ForecastLoader';
 
-const WIND_ARROW_GRID_STEP = 3; // every 3rd model grid point (FR-W02)
+const WIND_ARROW_GRID_STEP = 2; // every 2nd model grid point (smaller Nepal grid: 19×35)
 const CALM_KT = 2.0;            // calm threshold — no arrow below this (FR-W03)
 const MIN_ARROW_PX = 8;         // guaranteed minimum length for any wind ≥ CALM_KT (FR-W05)
-const MAX_ARROW_PX = 22;        // maximum length at 30 kt
+const MAX_ARROW_PX = 22;        // maximum length at WIND_SCALE_MAX kt
 
 interface ArrowData {
   x: number;
@@ -89,7 +89,7 @@ export function WindArrowOverlay({ map }: Props) {
 
         // Arrow length: guaranteed minimum for any non-calm point (FR-W05)
         // Linear scale: CALM_KT → MIN_ARROW_PX, 30 kt → MAX_ARROW_PX
-        const t = Math.min(1, Math.max(0, (speed - CALM_KT) / (30 - CALM_KT)));
+        const t = Math.min(1, Math.max(0, (speed - CALM_KT) / (15 - CALM_KT)));
         const len = MIN_ARROW_PX + t * (MAX_ARROW_PX - MIN_ARROW_PX);
 
         result.push({ x: pt.x, y: pt.y, toDeg, len });

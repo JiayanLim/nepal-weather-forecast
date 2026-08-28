@@ -37,11 +37,11 @@ export function App() {
   }, [setData, setError, setLoading]);
 
   useEffect(() => {
-    const geoUrl = `${import.meta.env.BASE_URL}geo/myanmar-boundary.geojson`;
+    const geoUrl = `${import.meta.env.BASE_URL}geo/nepal-boundary.geojson`;
     buildMaskFromGeojson(geoUrl)
       .then((m) => setMask(m))
       .catch((err) => {
-        const msg = `Myanmar boundary unavailable: ${String(err)}`;
+        const msg = `Nepal boundary unavailable: ${String(err)}`;
         setMaskError(msg);
         if (import.meta.env.VITE_DEBUG === 'true') {
           console.warn('[mask] Debug mode: proceeding without boundary mask.', err);
@@ -87,7 +87,7 @@ export function App() {
           <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
             <div className="bg-amber-900/90 border border-amber-600 rounded px-3 py-1.5 text-xs text-amber-300 flex items-center gap-2 max-w-xs">
               <span>⚠</span>
-              <span>Weather boundary unavailable — overlay shown without Myanmar mask</span>
+              <span>Weather boundary unavailable — overlay shown without Nepal mask</span>
             </div>
           </div>
         )}

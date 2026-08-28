@@ -81,13 +81,13 @@ export const useForecastStore = create<ForecastState>((set, get) => ({
   setLoading: (loading) => set({ isLoading: loading }),
 
   setHour: (hour) => {
-    const max = (useForecastStore.getState().metadata?.n_frames ?? 29) - 1;
+    const max = (useForecastStore.getState().metadata?.n_frames ?? 168) - 1;
     set({ currentHour: Math.max(0, Math.min(max, hour)) });
   },
 
   stepForward: () => {
     const { currentHour, metadata } = get();
-    const maxHour = (metadata?.n_frames ?? 29) - 1;
+    const maxHour = (metadata?.n_frames ?? 168) - 1;
     set({ currentHour: Math.min(currentHour + 1, maxHour) });
   },
 
