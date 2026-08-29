@@ -121,6 +121,7 @@ export function WeatherMap() {
       });
 
       // Flood analysis overlay — observed/analysed extent (EMSR927 + HOT)
+      // Google-style: strong pink-red fill, dashed outline, label
       map.addSource('flood-extent', {
         type: 'geojson',
         data: './geo/nepal-flood-2026-08-26.geojson',
@@ -131,8 +132,8 @@ export function WeatherMap() {
         type: 'fill',
         source: 'flood-extent',
         paint: {
-          'fill-color': '#e53e3e',
-          'fill-opacity': 0.25,
+          'fill-color': '#d4564a',
+          'fill-opacity': 0.40,
         },
       });
 
@@ -141,9 +142,29 @@ export function WeatherMap() {
         type: 'line',
         source: 'flood-extent',
         paint: {
-          'line-color': '#e53e3e',
-          'line-width': 2,
-          'line-opacity': 0.85,
+          'line-color': '#c0392b',
+          'line-width': 2.5,
+          'line-dasharray': [4, 3],
+          'line-opacity': 0.9,
+        },
+      });
+
+      // Flood area labels
+      map.addLayer({
+        id: 'flood-labels',
+        type: 'symbol',
+        source: 'flood-extent',
+        layout: {
+          'text-field': 'Flood area',
+          'text-font': ['Open Sans Regular'],
+          'text-size': 12,
+          'text-allow-overlap': false,
+          'text-ignore-placement': false,
+        },
+        paint: {
+          'text-color': '#c0392b',
+          'text-halo-color': 'rgba(0,0,0,0.7)',
+          'text-halo-width': 1.5,
         },
       });
 
@@ -176,8 +197,9 @@ export function WeatherMap() {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
     const vis = showFloodOverlay ? 'visible' : 'none';
-    if (map.getLayer('flood-fill')) map.setLayoutProperty('flood-fill', 'visibility', vis);
-    if (map.getLayer('flood-outline')) map.setLayoutProperty('flood-outline', 'visibility', vis);
+    for (const id of ['flood-fill', 'flood-outline', 'flood-labels']) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis);
+    }
   }, [showFloodOverlay]);
 
   // Draw weather overlay onto the canvas
