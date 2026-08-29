@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useForecastStore } from '../data/ForecastStore';
 import { getFrame, getPointValue, nearestGridPoint } from '../data/ForecastLoader';
@@ -9,6 +9,7 @@ import {
   WIND_LUT_ALPHA,  WIND_MIN,   WIND_MAX,
 } from './colorscales';
 import { WindArrowOverlay } from './WindArrowOverlay';
+import { FloodOverlay } from './FloodOverlay';
 import { DISPLAY_N_LAT, DISPLAY_N_LON } from '../geo/mask';
 
 const NEPAL_CENTER: [number, number] = [84.25, 28.25];
@@ -35,6 +36,7 @@ export function WeatherMap() {
   const overlayCanvas = useRef<HTMLCanvasElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
+  const floodPopupRef = useRef<maplibregl.Popup | null>(null);
 
   const {
     metadata,
@@ -57,6 +59,112 @@ export function WeatherMap() {
     canvas.style.width  = `${Math.max(1, se.x - nw.x)}px`;
     canvas.style.height = `${Math.max(1, se.y - nw.y)}px`;
   };
+
+  // Flood feature click handler
+  const handleFloodClick = useCallback((e: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }) => {
+    const map = mapRef.current;
+    if (!map || !e.features?.length) return;
+
+    // Don't show flood popup if flood overlay is hidden
+    if (!useForecastStore.getState().showFloodOverlay) return;
+
+    const feat = e.features[0];
+    const props = feat.properties || {};
+    const layer = props.layer || '';
+
+    // Close existing flood popup
+    if (floodPopupRef.current) {
+      floodPopupRef.current.remove();
+      floodPopupRef.current = null;
+    }
+
+    let html = '';
+    if (layer === 'flood_extent' || layer === 'copernicus_observed') {
+      html = `
+        <div class="wx-popup">
+          <div class="wx-popup-title" style="color:#e53e3e">2026 Nepal Flood Event</div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-label">Type</span>
+            <span class="wx-popup-value">Observed / Analysed Flood Extent</span>
+          </div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-label">Date</span>
+            <span class="wx-popup-value">26 Aug 2026</span>
+          </div>
+          ${props.area_sq_km ? `<div class="wx-popup-row"><span class="wx-popup-label">Area</span><span class="wx-popup-value">${props.area_sq_km} km²</span></div>` : ''}
+          ${props.area_ha ? `<div class="wx-popup-row"><span class="wx-popup-label">Area</span><span class="wx-popup-value">${Number(props.area_ha).toFixed(1)} ha</span></div>` : ''}
+          ${props.description ? `<div class="wx-popup-row"><span class="wx-popup-label">Desc</span><span class="wx-popup-value">${props.description}</span></div>` : ''}
+          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927 / HOT'}</div>
+          <div class="wx-popup-note" style="color:#e8a040;font-style:italic;margin-top:4px">
+            This is observed flood extent — not an Aurora prediction.
+          </div>
+        </div>`;
+    } else if (layer === 'facility') {
+      html = `
+        <div class="wx-popup">
+          <div class="wx-popup-title" style="color:#e53e3e">${props.name || 'Facility'}</div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-label">Type</span>
+            <span class="wx-popup-value">${props.type || '—'}</span>
+          </div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-label">Status</span>
+            <span class="wx-popup-value" style="color:#e53e3e">${props.damage || '—'}</span>
+          </div>
+          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
+        </div>`;
+    } else if (layer === 'bridge') {
+      html = `
+        <div class="wx-popup">
+          <div class="wx-popup-title" style="color:#e53e3e">Bridge</div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-label">Status</span>
+            <span class="wx-popup-value" style="color:#e53e3e">${props.damage || 'Destroyed'}</span>
+          </div>
+          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
+        </div>`;
+    } else if (layer === 'damaged_road') {
+      html = `
+        <div class="wx-popup">
+          <div class="wx-popup-title" style="color:#e53e3e">${props.name || 'Road'}</div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-label">Status</span>
+            <span class="wx-popup-value" style="color:#e53e3e">${props.damage || 'Destroyed'}</span>
+          </div>
+          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
+        </div>`;
+    } else if (layer === 'event_marker') {
+      html = `
+        <div class="wx-popup">
+          <div class="wx-popup-title" style="color:#e53e3e">${props.name || 'Location'}</div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-value">${props.description || 'Flood impact area'}</span>
+          </div>
+          <div class="wx-popup-row">
+            <span class="wx-popup-label">Date</span>
+            <span class="wx-popup-value">26 Aug 2026</span>
+          </div>
+          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927 / HOT'}</div>
+        </div>`;
+    }
+
+    if (!html) return;
+
+    // Prevent the weather popup from also showing
+    e.originalEvent.stopPropagation();
+
+    const popup = new maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: true,
+      maxWidth: '260px',
+      className: 'wx-maplibre-popup',
+    })
+      .setLngLat(e.lngLat)
+      .setHTML(html)
+      .addTo(map);
+
+    floodPopupRef.current = popup;
+  }, []);
 
   // Initialise map
   useEffect(() => {
@@ -95,6 +203,7 @@ export function WeatherMap() {
     mapRef.current = map;
 
     map.on('load', () => {
+      // ── Nepal boundary ──
       map.addSource('nepal-boundary', {
         type: 'geojson',
         data: './geo/nepal-boundary.geojson',
@@ -120,55 +229,212 @@ export function WeatherMap() {
         },
       });
 
-      // Flood analysis overlay — observed/analysed extent (EMSR927 + HOT)
-      // Google-style: strong pink-red fill, dashed outline, label
+      // ── Flood analysis overlay (EMSR927 + HOT) ──
+      // Renders on MapLibre canvas (below weather raster DOM canvas).
+      // Strong styling ensures visibility through the 85%-opacity weather overlay.
+      // Event markers + labels render in a separate React overlay above the canvas.
       map.addSource('flood-extent', {
         type: 'geojson',
         data: './geo/nepal-flood-2026-08-26.geojson',
       });
 
+      // Flood/landslide fill — strong red, high opacity to show through weather layer
       map.addLayer({
         id: 'flood-fill',
         type: 'fill',
         source: 'flood-extent',
+        filter: ['in', ['get', 'layer'], ['literal', ['flood_extent', 'copernicus_observed']]],
         paint: {
-          'fill-color': '#d4564a',
-          'fill-opacity': 0.40,
+          'fill-color': '#c0392b',
+          'fill-opacity': 0.55,
         },
       });
 
+      // Flood outline — thick dashed line
       map.addLayer({
         id: 'flood-outline',
         type: 'line',
         source: 'flood-extent',
+        filter: ['in', ['get', 'layer'], ['literal', ['flood_extent', 'copernicus_observed']]],
         paint: {
-          'line-color': '#c0392b',
-          'line-width': 2.5,
-          'line-dasharray': [4, 3],
-          'line-opacity': 0.9,
+          'line-color': '#922b21',
+          'line-width': 3,
+          'line-dasharray': [4, 2.5],
+          'line-opacity': 0.95,
         },
       });
 
-      // Flood area labels
+      // Damaged roads — orange dashed lines, visible at zoom >= 8
       map.addLayer({
-        id: 'flood-labels',
+        id: 'flood-roads',
+        type: 'line',
+        source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'damaged_road'],
+        minzoom: 8,
+        paint: {
+          'line-color': '#e67e22',
+          'line-width': 2.5,
+          'line-dasharray': [3, 2],
+          'line-opacity': 0.85,
+        },
+      });
+
+      // Destroyed bridges — orange circles, visible at zoom >= 8.5
+      map.addLayer({
+        id: 'flood-bridges',
+        type: 'circle',
+        source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'bridge'],
+        minzoom: 8.5,
+        paint: {
+          'circle-radius': 4,
+          'circle-color': '#e67e22',
+          'circle-stroke-color': '#7f3d00',
+          'circle-stroke-width': 1.5,
+          'circle-opacity': 0.9,
+        },
+      });
+
+      // Named facilities — larger red circles, visible at zoom >= 7.5
+      map.addLayer({
+        id: 'flood-facilities',
+        type: 'circle',
+        source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'facility'],
+        minzoom: 7.5,
+        paint: {
+          'circle-radius': 6,
+          'circle-color': '#c0392b',
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 2,
+          'circle-opacity': 0.95,
+        },
+      });
+
+      // Facility labels — visible at zoom >= 8
+      map.addLayer({
+        id: 'flood-facility-labels',
         type: 'symbol',
         source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'facility'],
+        minzoom: 8,
         layout: {
-          'text-field': 'Flood area',
+          'text-field': ['get', 'name'],
           'text-font': ['Open Sans Regular'],
-          'text-size': 12,
+          'text-size': 11,
+          'text-offset': [0, 1.3],
+          'text-anchor': 'top',
           'text-allow-overlap': false,
-          'text-ignore-placement': false,
         },
         paint: {
-          'text-color': '#c0392b',
-          'text-halo-color': 'rgba(0,0,0,0.7)',
+          'text-color': '#e74c3c',
+          'text-halo-color': 'rgba(0,0,0,0.8)',
           'text-halo-width': 1.5,
         },
       });
 
+      // Event marker circles — red dots
+      // Major markers at zoom >= 7, all at zoom >= 8
+      map.addLayer({
+        id: 'flood-markers',
+        type: 'circle',
+        source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'event_marker'],
+        minzoom: 7,
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 5, 10, 8],
+          'circle-color': '#e74c3c',
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 2,
+          'circle-opacity': 0.95,
+        },
+      });
+
+      // Event marker labels — name only, zoom-dependent
+      map.addLayer({
+        id: 'flood-marker-labels',
+        type: 'symbol',
+        source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'event_marker'],
+        minzoom: 7.5,
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 7.5, 10, 10, 13],
+          'text-offset': [0, 1.2],
+          'text-anchor': 'top',
+          'text-allow-overlap': false,
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': '#e74c3c',
+          'text-halo-color': 'rgba(0,0,0,0.8)',
+          'text-halo-width': 1.5,
+        },
+      });
+
+      // Event marker description — shown at higher zoom
+      map.addLayer({
+        id: 'flood-marker-desc',
+        type: 'symbol',
+        source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'event_marker'],
+        minzoom: 8.5,
+        layout: {
+          'text-field': ['get', 'description'],
+          'text-font': ['Open Sans Regular'],
+          'text-size': 9,
+          'text-offset': [0, 2.8],
+          'text-anchor': 'top',
+          'text-allow-overlap': false,
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': 'rgba(229, 115, 100, 0.8)',
+          'text-halo-color': 'rgba(0,0,0,0.6)',
+          'text-halo-width': 1,
+        },
+      });
+
+      // Bridge labels at high zoom
+      map.addLayer({
+        id: 'flood-bridge-labels',
+        type: 'symbol',
+        source: 'flood-extent',
+        filter: ['==', ['get', 'layer'], 'bridge'],
+        minzoom: 9.5,
+        layout: {
+          'text-field': 'Bridge destroyed',
+          'text-font': ['Open Sans Regular'],
+          'text-size': 9,
+          'text-offset': [0, 1.2],
+          'text-anchor': 'top',
+          'text-allow-overlap': false,
+          'text-optional': true,
+        },
+        paint: {
+          'text-color': '#e67e22',
+          'text-halo-color': 'rgba(0,0,0,0.7)',
+          'text-halo-width': 1,
+        },
+      });
+
       positionOverlay(map, useForecastStore.getState().metadata);
+
+      // Flood feature click handlers
+      const floodClickLayers = [
+        'flood-fill', 'flood-markers', 'flood-facilities',
+        'flood-bridges', 'flood-roads',
+      ];
+      for (const layerId of floodClickLayers) {
+        map.on('click', layerId, handleFloodClick);
+        map.on('mouseenter', layerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', layerId, () => {
+          map.getCanvas().style.cursor = 'crosshair';
+        });
+      }
     });
 
     const onMove = () => positionOverlay(map, useForecastStore.getState().metadata);
@@ -178,8 +444,12 @@ export function WeatherMap() {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
     map.on('click', (e) => {
-      const { lng, lat } = e.lngLat;
-      useForecastStore.getState().setInspectorPoint({ lat, lon: lng });
+      // Only set inspector if not clicking a flood feature
+      const floodFeats = map.queryRenderedFeatures(e.point, {
+        layers: ['flood-fill', 'flood-markers', 'flood-facilities', 'flood-bridges', 'flood-roads'],
+      });
+      if (floodFeats.length > 0 && useForecastStore.getState().showFloodOverlay) return;
+      useForecastStore.getState().setInspectorPoint({ lat: e.lngLat.lat, lon: e.lngLat.lng });
     });
 
     map.on('mousemove', () => {
@@ -197,7 +467,13 @@ export function WeatherMap() {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
     const vis = showFloodOverlay ? 'visible' : 'none';
-    for (const id of ['flood-fill', 'flood-outline', 'flood-labels']) {
+    const floodLayers = [
+      'flood-fill', 'flood-outline', 'flood-roads', 'flood-bridges',
+      'flood-facilities', 'flood-facility-labels',
+      'flood-markers', 'flood-marker-labels', 'flood-marker-desc',
+      'flood-bridge-labels',
+    ];
+    for (const id of floodLayers) {
       if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis);
     }
   }, [showFloodOverlay]);
@@ -359,6 +635,7 @@ export function WeatherMap() {
         }}
       />
       <WindArrowOverlay map={mapRef.current} />
+      <FloodOverlay map={mapRef.current} />
     </div>
   );
 }

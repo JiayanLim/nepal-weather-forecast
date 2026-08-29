@@ -67,3 +67,20 @@ GO recommendation issued.
 - Added flood event context to InfoPanel (source attribution, corridor, disclaimer)
 - Added showFloodOverlay state to ForecastStore
 - Updated spec kit with Section 8 (Flood Analysis Overlay) and ADR-N04
+
+### Phase N9b — Enhanced Flood Overlay (COMPLETE)
+- Expanded GeoJSON from 5 to 72 features across 6 layers (flood_extent, copernicus_observed,
+  event_marker, facility, bridge, damaged_road) by parsing EMSR927 GeoPackages directly
+- Custom Python WKB parser for GeoPackage binary geometry (Point, LineString, Polygon,
+  MultiLineString, MultiPolygon)
+- Enhanced WeatherMap.tsx with 10 MapLibre flood layers:
+  - Polygon fill (55% opacity #c0392b) + dashed outline (#922b21, [4,2.5])
+  - Damaged roads (orange dashed, minzoom 8)
+  - Bridge markers (orange circles, minzoom 8.5) + labels (minzoom 9.5)
+  - Facility markers (red circles, minzoom 7.5) + labels (minzoom 8)
+  - Event markers (red circles, minzoom 7) + labels (minzoom 7.5) + descriptions (minzoom 8.5)
+- Created FloodOverlay.tsx: React component rendering Google Maps-style pin markers
+  above the weather canvas (z-index 3) for 9 key locations using map.project()
+- Interactive flood popups on click with source attribution and "not Aurora" disclaimer
+- Updated FloodToggle.tsx with compact two-entry legend + attribution line
+- Zoom-dependent visibility prevents clutter at low zoom levels

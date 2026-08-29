@@ -124,16 +124,66 @@ observed damage from authoritative geospatial sources.
    Drone, Landsat, PlanetScope, Sentinel imagery. License: ODbL.
    HDX: `hot_flood_npl`. 1 Polygon feature (31.7 km² flood corridor).
 
-Combined into: `frontend/public/geo/nepal-flood-2026-08-26.geojson` (5 features, ~210 KB).
+Combined into: `frontend/public/geo/nepal-flood-2026-08-26.geojson` (72 features, 6 layers, ~230 KB).
+
+### GeoJSON Layers
+
+| Layer | Features | Geometry | Source |
+|-------|----------|----------|--------|
+| flood_extent | 1 | Polygon | HOT observed flood extent |
+| copernicus_observed | 4 | MultiPolygon | EMSR927 AOI01–03 grading |
+| event_marker | 6 | Point | Key affected locations |
+| facility | 3 | Point | EMSR927 destroyed infrastructure |
+| bridge | 24 | Point | EMSR927 destroyed bridges |
+| damaged_road | 34 | LineString/MultiLineString | EMSR927 destroyed road segments |
+
+### Key Affected Locations
+
+| Name | Type | Min Zoom | Coordinates |
+|------|------|----------|-------------|
+| Rasuwagadhi | Event | 6.5 | 85.3546°E, 28.2595°N |
+| Timure | Event | 7.5 | 85.3640°E, 28.2767°N |
+| Syapru Besi | Event | 7.5 | 85.3388°E, 28.1604°N |
+| Bidur | Event | 7.5 | 85.1389°E, 27.9096°N |
+| Bhote Koshi | Event | 7.0 | 85.3250°E, 28.1100°N |
+| Trishuli | Event | 7.0 | 85.1000°E, 27.8500°N |
+| Rasuwagadhi Dam | Facility | 8.0 | 85.3771°E, 28.2742°N |
+| Langtang Khola HPP | Facility | 8.5 | 85.3405°E, 28.1637°N |
+| Trishuli Power House | Facility | 8.5 | 85.1459°E, 27.9213°N |
+
+### Visual Hierarchy
+
+The flood overlay renders at multiple z-levels to appear above weather data:
+
+1. **MapLibre canvas layers** (below weather raster): flood polygon fill/outline, infrastructure (roads, bridges, facilities), facility/bridge labels
+2. **React FloodOverlay component** (above weather raster, z-index 3): event markers and facility markers rendered as HTML pins using `map.project()` screen-space positioning (same pattern as WindArrowOverlay)
+
+Visual stack: basemap → boundary → weather raster → wind arrows → flood markers
 
 ### UI Requirements
 - Toggleable independently from weather variables (available on all tabs)
-- Semi-transparent red fill (#e53e3e, 25% opacity) with solid red outline
-- Toggle control in the legend panel with "2026 Flood Areas" label
+- Semi-transparent red fill (#c0392b, 55% opacity) with dashed red outline (#922b21, pattern [4, 2.5])
+- Toggle control in the legend panel with "2026 Flood Areas" label and compact legend entries
 - Enabled by default on page load
+- Zoom-dependent visibility:
+  - Flood polygons + outlines: always visible when enabled
+  - Event markers: minZoom 6.5–7.5 depending on location
+  - Facility markers: minZoom 7.5–8.5
+  - Bridge markers: minZoom 8.5
+  - Damaged roads: minZoom 8
+  - Bridge labels: minZoom 9.5
+- Interactive flood popups on click (flood features, facilities, bridges, roads) with:
+  - Feature name, type, source attribution
+  - "Not an Aurora prediction" disclaimer
+- Google Maps-style pin markers for key locations (colored background, name label, triangle stem)
 - Contextual information in Info panel:
   - Event date, corridor, affected districts
   - Source attribution (EMSR927 + HOT)
   - Explicit "Observed / Analysed Flood Extent" label
   - Explicit disclaimer: NOT an Aurora-predicted flood extent
   - Note on glacial/debris-flow trigger vs precipitation forecast
+
+### Prohibitions
+- Do NOT invent flood severity levels or classifications not present in source data
+- Do NOT label overlay as Aurora-predicted or model-generated
+- Do NOT simplify authoritative geometries for appearance

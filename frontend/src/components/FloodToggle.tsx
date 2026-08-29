@@ -14,26 +14,32 @@ export function FloodToggle() {
         <span
           className="w-3.5 h-3.5 rounded-sm shrink-0"
           style={{
-            backgroundColor: showFloodOverlay ? 'rgba(212, 86, 74, 0.5)' : 'transparent',
-            border: showFloodOverlay ? '2px dashed #c0392b' : '2px solid #4a5568',
+            backgroundColor: showFloodOverlay ? 'rgba(192, 57, 43, 0.55)' : 'transparent',
+            border: showFloodOverlay ? '2px solid #922b21' : '2px solid #4a5568',
           }}
         />
         <span className={`text-[10px] font-medium ${showFloodOverlay ? 'text-slate-200' : 'text-slate-500'} group-hover:text-white transition-colors`}>
           2026 Flood Areas
         </span>
-        <span className="text-[8px] text-slate-600 ml-auto">observed</span>
       </button>
       {showFloodOverlay && (
-        <div className="flex flex-col gap-0.5 mt-1 ml-6">
+        <div className="flex flex-col gap-1 mt-1.5 ml-6">
           <div className="flex items-center gap-1.5">
             <span
-              className="w-4 shrink-0"
-              style={{ height: 2, borderTop: '2px dashed #c0392b' }}
+              className="w-3 h-2 rounded-sm shrink-0"
+              style={{ backgroundColor: 'rgba(192, 57, 43, 0.55)', border: '1px solid #922b21' }}
             />
-            <span className="text-[9px] text-slate-500">Flood / landslide extent</span>
+            <span className="text-[9px] text-slate-500">Observed flood / landslide</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span
+              className="w-3 h-3 rounded-full shrink-0"
+              style={{ backgroundColor: '#c0392b', border: '1.5px solid #fff' }}
+            />
+            <span className="text-[9px] text-slate-500">Key affected locations</span>
           </div>
           <span className="text-[8px] text-slate-600 italic">
-            EMSR927 + HOT observed
+            EMSR927 + HOT · observed extent
           </span>
         </div>
       )}

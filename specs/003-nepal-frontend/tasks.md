@@ -42,3 +42,15 @@
 - [x] N9-TOGGLE: Create FloodToggle component (legend panel, independent of variable)
 - [x] N9-INFO: Add flood event context to InfoPanel (source, corridor, disclaimer)
 - [x] N9-SPEC: Update spec kit (spec.md Section 8, plan.md Phase N9, tasks.md)
+
+## Phase N9b — Enhanced Flood Overlay
+
+- [x] N9b-GPKG: Parse EMSR927 GeoPackages (WKB geometry) for infrastructure layers
+- [x] N9b-GEOJSON: Expand GeoJSON to 72 features / 6 layers (~230 KB)
+- [x] N9b-FILL: Enhance flood fill (55% opacity, dashed outline)
+- [x] N9b-INFRA: Add MapLibre layers for roads, bridges, facilities with zoom-dependent visibility
+- [x] N9b-MARKERS: Add event marker + facility layers with labels/descriptions
+- [x] N9b-OVERLAY: Create FloodOverlay.tsx (above-canvas pin markers via map.project())
+- [x] N9b-POPUP: Add interactive flood popups with provenance + disclaimer
+- [x] N9b-LEGEND: Update FloodToggle with compact two-entry legend + attribution
+- [x] N9b-SPEC: Update spec kit (Section 8 enhanced, plan.md N9b, tasks.md)
