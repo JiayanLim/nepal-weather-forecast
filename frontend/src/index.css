@@ -22,32 +22,49 @@ html, body, #root {
   outline: none;
 }
 
-/* Flood popup: render above all analytical layers (weather raster, wind arrows, flood markers) */
-.wx-flood-popup {
-  z-index: 10 !important;
+/* ── Map popups — black text on white, high contrast ─────────────── */
+.wx-maplibre-popup .maplibregl-popup-content {
+  background: #fff;
+  color: #111;
+  border: 2px solid #111;
+  border-radius: 6px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
 }
-.wx-flood-popup .maplibregl-popup-content {
-  background: #1a1d27;
-  color: #e2e8f0;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
-  padding: 10px 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-  max-width: 280px;
-}
-.wx-flood-popup .maplibregl-popup-close-button {
-  color: #94a3b8;
+.wx-maplibre-popup .maplibregl-popup-close-button {
+  color: #333;
   font-size: 18px;
   padding: 2px 6px;
   right: 2px;
   top: 2px;
 }
-.wx-flood-popup .maplibregl-popup-close-button:hover {
-  color: #fff;
+.wx-maplibre-popup .maplibregl-popup-close-button:hover {
+  color: #000;
   background: transparent;
 }
-.wx-flood-popup .maplibregl-popup-tip {
-  border-top-color: #1a1d27;
+/* Tip border matches popup border for all anchor positions */
+.wx-maplibre-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: #111;
+}
+.wx-maplibre-popup.maplibregl-popup-anchor-top .maplibregl-popup-tip {
+  border-bottom-color: #111;
+}
+.wx-maplibre-popup.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: #111;
+}
+.wx-maplibre-popup.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: #111;
+}
+.wx-maplibre-popup.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.wx-maplibre-popup.maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+  border-bottom-color: #111;
+}
+.wx-maplibre-popup.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.wx-maplibre-popup.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+  border-top-color: #111;
 }
 
 /* Custom scrollbar */

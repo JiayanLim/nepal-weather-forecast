@@ -91,3 +91,14 @@ GO recommendation issued.
 - Added popup z-index (10) above all analytical layers (weather raster z-auto, wind arrows z-2, flood markers z-3)
 - Added dark-themed popup CSS (background, border, shadow, close button)
 - Documented popup interaction model and model label deduplication in spec.md
+
+### Phase N11 — Final UI Fixes (COMPLETE)
+- Disabled map rotation on all platforms (dragRotate: false, touchZoomRotate.disableRotation())
+  while retaining pinch-zoom and pan
+- Fixed popup rendering behind mask: reparent MapLibre popup DOM element from map container
+  to dedicated overlay container (z-index 20) that renders as last sibling above all analytical
+  layers. MapLibre's internal position tracking continues to work because the overlay container
+  shares the same coordinate space (position: absolute, inset: 0)
+- Popup styling changed from dark grey to high-contrast black text (#111) on white background
+  with 2px black border. All anchor tip directions styled. Inline HTML colors updated for white bg.
+- Both flood and weather popups reparented to same overlay container

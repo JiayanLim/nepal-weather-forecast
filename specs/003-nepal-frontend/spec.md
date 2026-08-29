@@ -158,7 +158,7 @@ The flood overlay renders at multiple z-levels to appear above weather data:
 1. **MapLibre canvas layers** (below weather raster): flood polygon fill/outline, infrastructure (roads, bridges, facilities), facility/bridge labels
 2. **React FloodOverlay component** (above weather raster, z-index 3): event markers and facility markers rendered as HTML pins using `map.project()` screen-space positioning (same pattern as WindArrowOverlay)
 
-Visual stack: basemap → boundary → weather raster → wind arrows → flood markers
+Visual stack: basemap → boundary → weather raster → wind arrows → flood markers → popup overlay (z-index 20)
 
 ### UI Requirements
 - Toggleable independently from weather variables (available on all tabs)
@@ -192,9 +192,22 @@ Requirements:
 - Popups are persistent (not hover-only, not auto-dismissed)
 - `closeOnClick: false` on MapLibre popup; manual dismiss on non-flood click
 - Clicking another flood feature replaces the current popup (no multiple popups)
-- Popup z-index must be above all analytical layers (weather raster, wind arrows, flood markers)
+- Popup rendered in dedicated overlay container (z-index 20) above ALL analytical layers
+  - MapLibre popup DOM element is reparented from map container to overlay container after creation
+  - Overlay container has same position/size as map container (absolute, inset: 0) so popup
+    transform coordinates remain valid
+  - `pointerEvents: auto` set on popup element; container itself is `pointerEvents: none`
 - Visual hierarchy: basemap -> weather raster -> wind arrows -> flood polygons -> flood markers -> popup
-- Popup styled with dark theme to match app, readable on mobile, contained within viewport
+- Popup styled with high-contrast black text (#111) on white background, 2px black border
+- MapLibre auto-anchoring ensures popup remains within viewport on desktop and mobile
+- No automatic timeout; map movement does not dismiss popup
+
+### Map Interaction
+
+- Map rotation disabled on all platforms (`dragRotate: false`, `touchZoomRotate.disableRotation()`)
+- Pinch-to-zoom enabled (only rotation component disabled)
+- Touch pitch disabled (`touchPitch: false`)
+- Pan/drag enabled on all platforms
 
 ### Model Label Display
 

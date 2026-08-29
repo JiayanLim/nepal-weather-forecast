@@ -62,3 +62,11 @@
 - [x] N10-POPUP-ZINDEX: Popup above all analytical layers (z-index 10, dark-themed CSS)
 - [x] N10-POPUP-REPLACE: Click another flood feature replaces popup (no multiple popups)
 - [x] N10-SPEC: Update spec kit (popup interaction model, model label deduplication)
+
+## Phase N11 — Final UI Fixes
+
+- [x] N11-ROTATION: Disable map rotation (dragRotate, touchZoomRotate.disableRotation), retain pinch-zoom
+- [x] N11-POPUP-OVERLAY: Reparent popup DOM to dedicated overlay container (z-index 20) above mask
+- [x] N11-POPUP-STYLE: High-contrast black text on white background, 2px black border, all anchor tips
+- [x] N11-POPUP-COLORS: Update inline HTML colors for white bg (source #555, disclaimer #7d5a0a)
+- [x] N11-SPEC: Update spec kit (rotation, popup overlay, styling, interaction)

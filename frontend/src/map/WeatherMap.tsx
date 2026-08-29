@@ -37,6 +37,7 @@ export function WeatherMap() {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const floodPopupRef = useRef<maplibregl.Popup | null>(null);
+  const popupOverlayRef = useRef<HTMLDivElement>(null);
 
   const {
     metadata,
@@ -82,7 +83,7 @@ export function WeatherMap() {
     if (layer === 'flood_extent' || layer === 'copernicus_observed') {
       html = `
         <div class="wx-popup">
-          <div class="wx-popup-title" style="color:#e53e3e">2026 Nepal Flood Event</div>
+          <div class="wx-popup-title" style="color:#c0392b">2026 Nepal Flood Event</div>
           <div class="wx-popup-row">
             <span class="wx-popup-label">Type</span>
             <span class="wx-popup-value">Observed / Analysed Flood Extent</span>
@@ -94,49 +95,49 @@ export function WeatherMap() {
           ${props.area_sq_km ? `<div class="wx-popup-row"><span class="wx-popup-label">Area</span><span class="wx-popup-value">${props.area_sq_km} km²</span></div>` : ''}
           ${props.area_ha ? `<div class="wx-popup-row"><span class="wx-popup-label">Area</span><span class="wx-popup-value">${Number(props.area_ha).toFixed(1)} ha</span></div>` : ''}
           ${props.description ? `<div class="wx-popup-row"><span class="wx-popup-label">Desc</span><span class="wx-popup-value">${props.description}</span></div>` : ''}
-          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927 / HOT'}</div>
-          <div class="wx-popup-note" style="color:#e8a040;font-style:italic;margin-top:4px">
+          <div class="wx-popup-note" style="color:#555;margin-top:4px">Source: ${props.source || 'EMSR927 / HOT'}</div>
+          <div class="wx-popup-note" style="color:#7d5a0a;font-style:italic;margin-top:4px">
             This is observed flood extent — not an Aurora prediction.
           </div>
         </div>`;
     } else if (layer === 'facility') {
       html = `
         <div class="wx-popup">
-          <div class="wx-popup-title" style="color:#e53e3e">${props.name || 'Facility'}</div>
+          <div class="wx-popup-title" style="color:#c0392b">${props.name || 'Facility'}</div>
           <div class="wx-popup-row">
             <span class="wx-popup-label">Type</span>
             <span class="wx-popup-value">${props.type || '—'}</span>
           </div>
           <div class="wx-popup-row">
             <span class="wx-popup-label">Status</span>
-            <span class="wx-popup-value" style="color:#e53e3e">${props.damage || '—'}</span>
+            <span class="wx-popup-value" style="color:#c0392b">${props.damage || '—'}</span>
           </div>
-          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
+          <div class="wx-popup-note" style="color:#555;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
         </div>`;
     } else if (layer === 'bridge') {
       html = `
         <div class="wx-popup">
-          <div class="wx-popup-title" style="color:#e53e3e">Bridge</div>
+          <div class="wx-popup-title" style="color:#c0392b">Bridge</div>
           <div class="wx-popup-row">
             <span class="wx-popup-label">Status</span>
-            <span class="wx-popup-value" style="color:#e53e3e">${props.damage || 'Destroyed'}</span>
+            <span class="wx-popup-value" style="color:#c0392b">${props.damage || 'Destroyed'}</span>
           </div>
-          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
+          <div class="wx-popup-note" style="color:#555;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
         </div>`;
     } else if (layer === 'damaged_road') {
       html = `
         <div class="wx-popup">
-          <div class="wx-popup-title" style="color:#e53e3e">${props.name || 'Road'}</div>
+          <div class="wx-popup-title" style="color:#c0392b">${props.name || 'Road'}</div>
           <div class="wx-popup-row">
             <span class="wx-popup-label">Status</span>
-            <span class="wx-popup-value" style="color:#e53e3e">${props.damage || 'Destroyed'}</span>
+            <span class="wx-popup-value" style="color:#c0392b">${props.damage || 'Destroyed'}</span>
           </div>
-          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
+          <div class="wx-popup-note" style="color:#555;margin-top:4px">Source: ${props.source || 'EMSR927'}</div>
         </div>`;
     } else if (layer === 'event_marker') {
       html = `
         <div class="wx-popup">
-          <div class="wx-popup-title" style="color:#e53e3e">${props.name || 'Location'}</div>
+          <div class="wx-popup-title" style="color:#c0392b">${props.name || 'Location'}</div>
           <div class="wx-popup-row">
             <span class="wx-popup-value">${props.description || 'Flood impact area'}</span>
           </div>
@@ -144,7 +145,7 @@ export function WeatherMap() {
             <span class="wx-popup-label">Date</span>
             <span class="wx-popup-value">26 Aug 2026</span>
           </div>
-          <div class="wx-popup-note" style="color:#999;margin-top:4px">Source: ${props.source || 'EMSR927 / HOT'}</div>
+          <div class="wx-popup-note" style="color:#555;margin-top:4px">Source: ${props.source || 'EMSR927 / HOT'}</div>
         </div>`;
     }
 
@@ -157,7 +158,7 @@ export function WeatherMap() {
       closeButton: true,
       closeOnClick: false,
       maxWidth: '260px',
-      className: 'wx-maplibre-popup wx-flood-popup',
+      className: 'wx-maplibre-popup',
     })
       .setLngLat(e.lngLat)
       .setHTML(html)
@@ -166,6 +167,13 @@ export function WeatherMap() {
     popup.on('close', () => {
       if (floodPopupRef.current === popup) floodPopupRef.current = null;
     });
+
+    // Reparent popup DOM to overlay container so it renders above all analytical layers
+    const el = popup.getElement();
+    if (el && popupOverlayRef.current) {
+      popupOverlayRef.current.appendChild(el);
+      el.style.pointerEvents = 'auto';
+    }
 
     floodPopupRef.current = popup;
   }, []);
@@ -202,7 +210,12 @@ export function WeatherMap() {
       maxBounds: [[76, 24], [93, 33]],
       minZoom: 5,
       maxZoom: 10,
+      dragRotate: false,
+      touchPitch: false,
     });
+
+    // Disable rotation on pinch (keep pinch-zoom enabled)
+    map.touchZoomRotate.disableRotation();
 
     mapRef.current = map;
 
@@ -598,7 +611,7 @@ export function WeatherMap() {
             ? `<div class="wx-popup-note">1h precipitation rate</div>`
             : ''
           }
-          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:6px 0"/>
+          <hr style="border:none;border-top:1px solid rgba(0,0,0,0.12);margin:6px 0"/>
           <div class="wx-popup-row" style="opacity:0.65">
             <span class="wx-popup-label">Temp</span>
             <span class="wx-popup-value">${fmt(tempVal, 1, '°C')}</span>
@@ -629,6 +642,13 @@ export function WeatherMap() {
       useForecastStore.getState().setInspectorPoint(null);
     });
 
+    // Reparent popup DOM to overlay container so it renders above all analytical layers
+    const popupEl = popup.getElement();
+    if (popupEl && popupOverlayRef.current) {
+      popupOverlayRef.current.appendChild(popupEl);
+      popupEl.style.pointerEvents = 'auto';
+    }
+
     popupRef.current = popup;
   }, [inspectorPoint, currentHour, isLoaded, metadata, precipitation, temperature, windSpeed, windDirection, activeVariable]);
 
@@ -647,6 +667,17 @@ export function WeatherMap() {
       />
       <WindArrowOverlay map={mapRef.current} />
       <FloodOverlay map={mapRef.current} />
+      {/* Popup overlay — dedicated top-level container above ALL analytical layers */}
+      <div
+        ref={popupOverlayRef}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          zIndex: 20,
+          overflow: 'visible',
+        }}
+      />
     </div>
   );
 }
