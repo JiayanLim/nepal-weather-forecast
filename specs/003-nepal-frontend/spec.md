@@ -95,3 +95,45 @@ Nepal-specific considerations, but no MAE/RMSE/bias/POD/FAR/CSI scores.
   Rationale: preserves Myanmar frontend rendering convention; all rendering code assumes latIdx 0 = south.
 - **ADR-N03**: Nepal-specific precipitation scale (PRECIP_MAX=3, monsoon-calibrated ticks).
   Rationale: Myanmar dry-season scale (max 2 mm/hr) compresses Nepal monsoon data into the lower range.
+- **ADR-N04**: Flood analysis overlay uses local GeoJSON, not runtime API.
+  Rationale: authoritative geometries from Copernicus EMSR927 + HOT are static; no external dependency needed.
+
+---
+
+## 8. Flood Analysis Overlay
+
+### Purpose
+Visual comparison of Aurora 1.5 meteorological forecast against the observed/analysed
+flood extent from the 26 August 2026 Nepal Bhote Koshi–Trishuli flood event.
+
+The overlay is NOT an Aurora-predicted flood extent. It shows independently mapped
+observed damage from authoritative geospatial sources.
+
+### Event
+- **Date**: 26 August 2026
+- **Trigger**: Glacial lake outburst / debris avalanche, upper Lhende Khola catchment
+- **Corridor**: Lhende Khola → Bhote Koshi → Trishuli
+- **Affected districts**: Rasuwa, Nuwakot, Dhading
+- **Bbox**: lat 27.86–28.28°N, lon 84.56–85.38°E (within Nepal forecast domain)
+
+### Data Sources
+1. **Copernicus EMS EMSR927** — rapid mapping grading products (AOI01–AOI03).
+   Photo-interpretation of satellite imagery. License: CC BY 4.0.
+   HDX: `npl-flood-emsr927`. 4 MultiPolygon features (~8.3 km² total observed landslide area).
+2. **Humanitarian OpenStreetMap Team (HOT)** — observed flood extent, 27 Aug 2026.
+   Drone, Landsat, PlanetScope, Sentinel imagery. License: ODbL.
+   HDX: `hot_flood_npl`. 1 Polygon feature (31.7 km² flood corridor).
+
+Combined into: `frontend/public/geo/nepal-flood-2026-08-26.geojson` (5 features, ~210 KB).
+
+### UI Requirements
+- Toggleable independently from weather variables (available on all tabs)
+- Semi-transparent red fill (#e53e3e, 25% opacity) with solid red outline
+- Toggle control in the legend panel with "2026 Flood Areas" label
+- Enabled by default on page load
+- Contextual information in Info panel:
+  - Event date, corridor, affected districts
+  - Source attribution (EMSR927 + HOT)
+  - Explicit "Observed / Analysed Flood Extent" label
+  - Explicit disclaimer: NOT an Aurora-predicted flood extent
+  - Note on glacial/debris-flow trigger vs precipitation forecast

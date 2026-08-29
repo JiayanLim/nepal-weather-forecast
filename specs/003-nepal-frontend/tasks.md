@@ -29,7 +29,16 @@
 - [x] N6-BUILD: npm run build — PASS
 - [x] N6-DEPLOY-YML: Update deploy-pages.yml for Nepal
 
-## Pending
+- [x] N7-QA: Local visual QA validation — ALL PASS
+- [x] N8-DEPLOY: Deploy to GitHub Pages (commit 5f301b7)
 
-- [ ] N7-REVIEW: User review of implementation
-- [ ] N8-DEPLOY: Deploy to GitHub Pages
+## Phase N9 — Flood Analysis Overlay
+
+- [x] N9-DATA: Download Copernicus EMSR927 AOI01–AOI03 GeoPackages from HDX
+- [x] N9-HOT: Download HOT observed flood extent GeoJSON from HDX
+- [x] N9-COMBINE: Combine EMSR927 + HOT into nepal-flood-2026-08-26.geojson
+- [x] N9-STORE: Add showFloodOverlay toggle to ForecastStore
+- [x] N9-MAP: Add flood GeoJSON source + fill/outline layers to WeatherMap
+- [x] N9-TOGGLE: Create FloodToggle component (legend panel, independent of variable)
+- [x] N9-INFO: Add flood event context to InfoPanel (source, corridor, disclaimer)
+- [x] N9-SPEC: Update spec kit (spec.md Section 8, plan.md Phase N9, tasks.md)

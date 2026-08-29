@@ -43,6 +43,7 @@ export function WeatherMap() {
     currentHour,
     isLoaded, setInspectorPoint, inspectorPoint,
     mask,
+    showFloodOverlay,
   } = useForecastStore();
 
   const positionOverlay = (map: maplibregl.Map, meta: typeof metadata) => {
@@ -119,6 +120,33 @@ export function WeatherMap() {
         },
       });
 
+      // Flood analysis overlay — observed/analysed extent (EMSR927 + HOT)
+      map.addSource('flood-extent', {
+        type: 'geojson',
+        data: './geo/nepal-flood-2026-08-26.geojson',
+      });
+
+      map.addLayer({
+        id: 'flood-fill',
+        type: 'fill',
+        source: 'flood-extent',
+        paint: {
+          'fill-color': '#e53e3e',
+          'fill-opacity': 0.25,
+        },
+      });
+
+      map.addLayer({
+        id: 'flood-outline',
+        type: 'line',
+        source: 'flood-extent',
+        paint: {
+          'line-color': '#e53e3e',
+          'line-width': 2,
+          'line-opacity': 0.85,
+        },
+      });
+
       positionOverlay(map, useForecastStore.getState().metadata);
     });
 
@@ -142,6 +170,15 @@ export function WeatherMap() {
       mapRef.current = null;
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Toggle flood overlay visibility
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    const vis = showFloodOverlay ? 'visible' : 'none';
+    if (map.getLayer('flood-fill')) map.setLayoutProperty('flood-fill', 'visibility', vis);
+    if (map.getLayer('flood-outline')) map.setLayoutProperty('flood-outline', 'visibility', vis);
+  }, [showFloodOverlay]);
 
   // Draw weather overlay onto the canvas
   useEffect(() => {

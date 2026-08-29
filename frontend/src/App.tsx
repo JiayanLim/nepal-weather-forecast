@@ -8,6 +8,7 @@ import { Timeline } from './components/Timeline';
 import { InfoPanel } from './components/InfoPanel';
 import { ModelEvaluation } from './components/ModelEvaluation';
 import { VariableSwitcher } from './components/VariableSwitcher';
+import { FloodToggle } from './components/FloodToggle';
 import { useForecastStore } from './data/ForecastStore';
 import { loadForecast } from './data/ForecastLoader';
 import { buildMaskFromGeojson } from './geo/mask';
@@ -62,6 +63,7 @@ export function App() {
         <div className="absolute bottom-3 left-3 z-20 bg-wx-panel/90 border border-wx-border rounded p-3 min-w-[220px]">
           <VariableSwitcher />
           {isLoaded && <Legend />}
+          {isLoaded && <FloodToggle />}
         </div>
 
         {!isLoaded && !error && (

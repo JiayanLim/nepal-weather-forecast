@@ -28,6 +28,7 @@ interface ForecastState {
   // Panel visibility
   showInfoPanel: boolean;
   showModelEvaluation: boolean;
+  showFloodOverlay: boolean;
 
   // Actions
   setData: (
@@ -51,6 +52,7 @@ interface ForecastState {
   setInspectorPoint: (point: { lat: number; lon: number } | null) => void;
   toggleInfoPanel: () => void;
   toggleModelEvaluation: () => void;
+  toggleFloodOverlay: () => void;
 }
 
 export const useForecastStore = create<ForecastState>((set, get) => ({
@@ -73,6 +75,7 @@ export const useForecastStore = create<ForecastState>((set, get) => ({
   inspectorPoint: null,
   showInfoPanel: false,
   showModelEvaluation: false,
+  showFloodOverlay: true,
 
   setData: (metadata, precipitation, temperature, windSpeed, windDirection) =>
     set({ metadata, precipitation, temperature, windSpeed, windDirection, isLoaded: true, isLoading: false, error: null }),
@@ -108,4 +111,5 @@ export const useForecastStore = create<ForecastState>((set, get) => ({
   setInspectorPoint: (point) => set({ inspectorPoint: point }),
   toggleInfoPanel: () => set((s) => ({ showInfoPanel: !s.showInfoPanel })),
   toggleModelEvaluation: () => set((s) => ({ showModelEvaluation: !s.showModelEvaluation })),
+  toggleFloodOverlay: () => set((s) => ({ showFloodOverlay: !s.showFloodOverlay })),
 }));

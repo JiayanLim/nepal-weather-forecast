@@ -168,6 +168,36 @@ export function InfoPanel() {
 
             <hr className="border-wx-border" />
 
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Flood Analysis Overlay</h3>
+              <div className="bg-red-950/30 border border-red-800/40 rounded p-3 text-[11px] text-slate-300 leading-relaxed space-y-2">
+                <p>
+                  <span className="text-red-300 font-semibold">Observed / Analysed Flood Extent</span> —
+                  this overlay shows the mapped flood and landslide areas from the
+                  <strong> 26 August 2026 Nepal flood event</strong>, not an Aurora-predicted flood extent.
+                </p>
+                <div className="text-[10px] text-slate-400 space-y-1">
+                  <p><strong>Event:</strong> 26 August 2026</p>
+                  <p><strong>Corridor:</strong> Lhende Khola &rarr; Bhote Koshi &rarr; Trishuli</p>
+                  <p><strong>Affected districts:</strong> Rasuwa, Nuwakot, Dhading</p>
+                </div>
+                <p className="text-[10px] text-slate-400">
+                  <strong>Sources:</strong> Copernicus Emergency Management Service EMSR927 rapid mapping
+                  (grading products AOI01&ndash;AOI03, photo-interpretation of satellite imagery, CC BY 4.0);
+                  Humanitarian OpenStreetMap Team observed flood extent
+                  (drone, Landsat, PlanetScope, Sentinel imagery, 27 Aug 2026, ODbL).
+                </p>
+                <p className="text-[10px] text-amber-300/80 italic">
+                  The 26 Aug event was triggered by a glacial lake outburst / debris avalanche
+                  in the upper Lhende Khola catchment. Precipitation forecasts alone should not
+                  be interpreted as causal prediction of such events &mdash; they involve geomorphological
+                  triggers beyond what atmospheric models represent.
+                </p>
+              </div>
+            </div>
+
+            <hr className="border-wx-border" />
+
             <div className="flex flex-col gap-1">
               <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Attribution</h3>
               <p className="text-[10px] text-slate-500">{metadata.model_attribution}</p>

@@ -46,5 +46,24 @@ GO recommendation issued.
 - Binary validation: ALL PASS (5 spot checks + 4 global array matches)
 - Timestamp check: PASS (168 frames, +1h to +168h)
 
-### Phase N7 — Deployment
-Pending user review.
+### Phase N7 — QA Validation (COMPLETE)
+- Binary spot checks: 10/10 PASS
+- forecast.json spec compliance: 25/25 PASS
+- NPT timezone conversion: 3/3 PASS
+- tsc --noEmit: PASS
+- npm run build: PASS
+
+### Phase N8 — Deployment (COMPLETE)
+- Deployed to GitHub Pages: https://jiayanlim.github.io/nepal-weather-forecast/
+- Commit: 5f301b7
+- All assets verified live (JS, CSS, JSON, 4 binaries, GeoJSON)
+
+### Phase N9 — Flood Analysis Overlay (COMPLETE)
+- Downloaded Copernicus EMSR927 rapid mapping products (AOI01–AOI03 GeoPackages from HDX)
+- Downloaded HOT observed flood extent GeoJSON from HDX
+- Combined 5 features into nepal-flood-2026-08-26.geojson (~210 KB)
+- Added toggleable flood layer to WeatherMap.tsx (red fill + outline)
+- Added FloodToggle component (legend panel, independent of weather variable)
+- Added flood event context to InfoPanel (source attribution, corridor, disclaimer)
+- Added showFloodOverlay state to ForecastStore
+- Updated spec kit with Section 8 (Flood Analysis Overlay) and ADR-N04
