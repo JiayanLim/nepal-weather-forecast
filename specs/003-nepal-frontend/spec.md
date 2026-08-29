@@ -183,6 +183,26 @@ Visual stack: basemap → boundary → weather raster → wind arrows → flood 
   - Explicit disclaimer: NOT an Aurora-predicted flood extent
   - Note on glacial/debris-flow trigger vs precipitation forecast
 
+### Popup Interaction Model
+
+Desktop: click flood feature -> popup opens -> stays open -> click elsewhere -> closes.
+Mobile: tap flood feature -> popup opens -> stays open -> tap elsewhere -> closes.
+
+Requirements:
+- Popups are persistent (not hover-only, not auto-dismissed)
+- `closeOnClick: false` on MapLibre popup; manual dismiss on non-flood click
+- Clicking another flood feature replaces the current popup (no multiple popups)
+- Popup z-index must be above all analytical layers (weather raster, wind arrows, flood markers)
+- Visual hierarchy: basemap -> weather raster -> wind arrows -> flood polygons -> flood markers -> popup
+- Popup styled with dark theme to match app, readable on mobile, contained within viewport
+
+### Model Label Display
+
+The model label is constructed from `metadata.model` + `metadata.model_version`. When the version
+string is already contained within the model name (e.g. model="Aurora 1.5", model_version="1.5"),
+the version must NOT be appended again. All UI components (Header, InfoPanel, ModelEvaluation)
+must deduplicate. Expected display: "Aurora 1.5" not "Aurora 1.5 1.5".
+
 ### Prohibitions
 - Do NOT invent flood severity levels or classifications not present in source data
 - Do NOT label overlay as Aurora-predicted or model-generated

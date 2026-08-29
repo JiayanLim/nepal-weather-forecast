@@ -155,13 +155,17 @@ export function WeatherMap() {
 
     const popup = new maplibregl.Popup({
       closeButton: true,
-      closeOnClick: true,
+      closeOnClick: false,
       maxWidth: '260px',
-      className: 'wx-maplibre-popup',
+      className: 'wx-maplibre-popup wx-flood-popup',
     })
       .setLngLat(e.lngLat)
       .setHTML(html)
       .addTo(map);
+
+    popup.on('close', () => {
+      if (floodPopupRef.current === popup) floodPopupRef.current = null;
+    });
 
     floodPopupRef.current = popup;
   }, []);
@@ -449,6 +453,13 @@ export function WeatherMap() {
         layers: ['flood-fill', 'flood-markers', 'flood-facilities', 'flood-bridges', 'flood-roads'],
       });
       if (floodFeats.length > 0 && useForecastStore.getState().showFloodOverlay) return;
+
+      // Dismiss any open flood popup when clicking non-flood area
+      if (floodPopupRef.current) {
+        floodPopupRef.current.remove();
+        floodPopupRef.current = null;
+      }
+
       useForecastStore.getState().setInspectorPoint({ lat: e.lngLat.lat, lon: e.lngLat.lng });
     });
 

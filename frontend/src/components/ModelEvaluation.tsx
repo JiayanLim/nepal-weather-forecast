@@ -66,7 +66,7 @@ export function ModelEvaluation() {
           {/* ── Model provenance ─────────────────────────────── */}
           {metadata && (
             <div className="text-[10px] text-slate-500 grid grid-cols-2 gap-x-4 gap-y-0.5">
-              <span>Model: {metadata.model}{metadata.model_version ? ` ${metadata.model_version}` : ''}</span>
+              <span>Model: {metadata.model_version && metadata.model.includes(metadata.model_version) ? metadata.model : `${metadata.model}${metadata.model_version ? ` ${metadata.model_version}` : ''}`}</span>
               <span>Resolution: {metadata.native_resolution_deg}°</span>
               <span>Init: {metadata.initialization_time}</span>
               <span>Step: {metadata.native_timestep_hours}h · Frames: {metadata.n_frames} · Horizon: {metadata.forecast_horizon_hours}h</span>

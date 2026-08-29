@@ -84,3 +84,10 @@ GO recommendation issued.
 - Interactive flood popups on click with source attribution and "not Aurora" disclaimer
 - Updated FloodToggle.tsx with compact two-entry legend + attribution line
 - Zoom-dependent visibility prevents clutter at low zoom levels
+
+### Phase N10 — UI Fixes (COMPLETE)
+- Fixed Aurora model label duplication ("Aurora 1.5 1.5" -> "Aurora 1.5") in Header, InfoPanel, ModelEvaluation
+- Made flood popups persistent: closeOnClick disabled, manual dismiss on non-flood click
+- Added popup z-index (10) above all analytical layers (weather raster z-auto, wind arrows z-2, flood markers z-3)
+- Added dark-themed popup CSS (background, border, shadow, close button)
+- Documented popup interaction model and model label deduplication in spec.md

@@ -40,7 +40,7 @@ export function Header() {
         </div>
         {isLoaded && metadata && (
           <div className="flex items-center gap-3 text-[10px] text-slate-400 mt-0.5">
-            <span>{metadata.model}{metadata.model_version ? ` ${metadata.model_version}` : ''}</span>
+            <span>{metadata.model_version && metadata.model.includes(metadata.model_version) ? metadata.model : `${metadata.model}${metadata.model_version ? ` ${metadata.model_version}` : ''}`}</span>
             <span>·</span>
             <span title="Model resolution · Display resolution (bilinear interpolation)">
               {metadata.native_resolution_deg}° model

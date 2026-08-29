@@ -52,7 +52,7 @@ export function InfoPanel() {
             <div className="grid grid-cols-2 gap-3">
               <Row
                 label="Model"
-                value={`${metadata.model}${metadata.model_version ? ` ${metadata.model_version}` : ''}`}
+                value={metadata.model_version && metadata.model.includes(metadata.model_version) ? metadata.model : `${metadata.model}${metadata.model_version ? ` ${metadata.model_version}` : ''}`}
               />
               <Row
                 label="Model resolution"

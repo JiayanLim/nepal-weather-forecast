@@ -54,3 +54,11 @@
 - [x] N9b-POPUP: Add interactive flood popups with provenance + disclaimer
 - [x] N9b-LEGEND: Update FloodToggle with compact two-entry legend + attribution
 - [x] N9b-SPEC: Update spec kit (Section 8 enhanced, plan.md N9b, tasks.md)
+
+## Phase N10 — UI Fixes
+
+- [x] N10-LABEL: Fix Aurora model label duplication in Header, InfoPanel, ModelEvaluation
+- [x] N10-POPUP-PERSIST: Make flood popups persistent (closeOnClick disabled, manual dismiss)
+- [x] N10-POPUP-ZINDEX: Popup above all analytical layers (z-index 10, dark-themed CSS)
+- [x] N10-POPUP-REPLACE: Click another flood feature replaces popup (no multiple popups)
+- [x] N10-SPEC: Update spec kit (popup interaction model, model label deduplication)
